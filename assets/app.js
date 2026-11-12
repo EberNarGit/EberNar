@@ -60,22 +60,23 @@ function drawList() {
   reveal();
 }
 
-const DET = [["d-problema", "Problema"], ["d-antes", "Cómo se hacía antes"], ["d-construi", "Qué construí"], ["d-cambio", "Qué cambió"], ["d-herr", "Herramientas"], ["d-areas", "Áreas"], ["d-demo", "Demo interactiva"]];
+const DET = [["d-problema", "El problema"], ["d-solucion", "La solución"], ["d-cambio", "En qué ayudó"], ["d-demo", "Cómo funciona"], ["d-construi", "Qué construí"], ["d-herr", "Herramientas"], ["d-areas", "Áreas"]];
 function detailHTML(p) {
   const i = PROYECTOS.indexOf(p), prev = PROYECTOS[i - 1], next = PROYECTOS[i + 1];
   const sec = (id, label, body) => `<div class="sec" id="${id}"><h3 class="label" style="margin:0">${label}</h3>${body}</div>`;
-  return `<article class="card hero-app">
-    <div class="eyebrow"><span class="ico">${svg(p.icono)}</span><span>${esc(p.sub)}</span></div>
-    ${sec("d-problema", "Problema", `<p>${esc(p.problema)}</p>`)}
-    ${sec("d-antes", "Cómo se hacía antes", `<p>${esc(p.antes)}</p>`)}
+  return `<div class="tres">
+    <section class="card pad t-prob" id="d-problema"><h2 class="label">${svg("x")}El problema</h2><p>${esc(p.problema)}</p><p class="antes"><b>Antes:</b> ${esc(p.antes)}</p></section>
+    <section class="card pad t-sol" id="d-solucion"><h2 class="label">${svg(p.icono)}La solución</h2><p>${esc(p.resumen)}</p></section>
+    <section class="card pad t-res" id="d-cambio"><h2 class="label">${svg("check")}En qué ayudó</h2>${p.cifras ? `<div class="figs">${p.cifras.map(c => `<div class="fig"><b>${esc(c[0])}</b><span>${esc(c[1])}</span></div>`).join("")}</div>` : ""}<ul class="built">${p.cambio.map(c => `<li>${svg("check")}<span>${esc(c)}</span></li>`).join("")}</ul></section>
+  </div>
+  ${p.demo ? `<section class="card demo" id="d-demo" aria-labelledby="t-demo-${p.id}"><div class="demo-top"><div><span class="label">Cómo funciona · demo paso a paso</span><h3 id="t-demo-${p.id}">${esc(p.demoTitulo)}</h3></div><div class="demo-actions"><span class="badge b-warn">Datos de ejemplo</span><button type="button" class="chip" data-restart>${svg("redo")} Reiniciar</button></div></div><div class="demo-root" data-demo="${p.demo}" tabindex="-1"></div></section>` : ""}
+  ${p.enlace ? `<section class="card demo" id="d-demo"><div class="demo-top"><div><span class="label">Vista previa</span><h3>Propuesta conceptual, navegable</h3></div><a class="btn" href="${p.enlace.href}">${esc(p.enlace.texto)} ${svg("arrow")}</a></div><div class="browser"><div class="barra" aria-hidden="true"><i></i><i></i><i></i><span>${p.enlace.href}</span></div><iframe src="${p.enlace.href}" title="Vista previa: ${esc(p.nombre)}" loading="lazy"></iframe></div><p class="nota">Propuesta conceptual. No es el sitio oficial.</p></section>` : ""}
+  <article class="card hero-app">
     ${sec("d-construi", "Qué construí", `<ul class="built">${p.construi.map(c => `<li>${svg("check")}<span>${esc(c)}</span></li>`).join("")}</ul>`)}
-    ${sec("d-cambio", "Qué cambió", `${p.cifras ? `<div class="figs">${p.cifras.map(c => `<div class="fig"><b>${esc(c[0])}</b><span>${esc(c[1])}</span></div>`).join("")}</div>` : ""}<ul class="built">${p.cambio.map(c => `<li>${svg("check")}<span>${esc(c)}</span></li>`).join("")}</ul>`)}
     ${sec("d-herr", "Herramientas", `<div class="chips-s">${chipsHerr(p)}</div>`)}
     ${p.areas.length ? sec("d-areas", "Áreas con las que trabajé", `<div class="chips-s">${chipsArea(p)}</div>`) : ""}
     ${p.nota ? `<p class="nota">${esc(p.nota)}</p>` : ""}
   </article>
-  ${p.demo ? `<section class="card demo" id="d-demo" aria-labelledby="t-demo-${p.id}"><div class="demo-top"><div><span class="label">Demo interactiva</span><h3 id="t-demo-${p.id}">${esc(p.demoTitulo)}</h3></div><div class="demo-actions"><span class="badge b-warn">Datos de ejemplo</span><button type="button" class="chip" data-restart>${svg("redo")} Reiniciar</button></div></div><div class="demo-root" data-demo="${p.demo}" tabindex="-1"></div></section>` : ""}
-  ${p.enlace ? `<section class="card demo" id="d-demo"><div class="demo-top"><div><span class="label">Vista previa</span><h3>Propuesta conceptual, navegable</h3></div><a class="btn" href="${p.enlace.href}">${esc(p.enlace.texto)} ${svg("arrow")}</a></div><div class="browser"><div class="barra" aria-hidden="true"><i></i><i></i><i></i><span>${p.enlace.href}</span></div><iframe src="${p.enlace.href}" title="Vista previa: ${esc(p.nombre)}" loading="lazy"></iframe></div><p class="nota">Propuesta conceptual. No es el sitio oficial.</p></section>` : ""}
   <nav class="pager" aria-label="Otros proyectos">${prev ? `<a class="btn ghost" href="#/proyecto/${prev.id}">${svg("back")}${esc(prev.nombre)}</a>` : "<span></span>"}${next ? `<a class="btn ghost" href="#/proyecto/${next.id}">${esc(next.nombre)}${svg("arrow")}</a>` : ""}</nav>`;
 }
 
@@ -91,8 +92,8 @@ function head(r) {
   const h = new Date().getHours();
   if (r.v === "inicio") return [(h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches") + ", soy", PERFIL.marca, PERFIL.puesto + ". " + PERFIL.frase];
   if (r.v === "proyectos") return ["Proyectos", "Antes manual, después digital", "Busca o filtra por área y por herramienta. Cada tarjeta abre su detalle con una demo."];
-  if (r.v === "sobre-mi") return ["Sobre mí", "Contacto", PERFIL.puesto + "."];
-  if (r.v === "proyecto") return [r.p.areas.join(" · ") || "Web", r.p.nombre, r.p.resumen];
+  if (r.v === "sobre-mi") return ["Contacto", "Sobre mí", PERFIL.puesto + "."];
+  if (r.v === "proyecto") return [r.p.areas.join(" · ") || "Web", r.p.nombre, r.p.sub];
   return ["Sección", SECCIONES[r.v].titulo, SECCIONES[r.v].sub];
 }
 const sideBtns = l => l.map(([id, t]) => `<button type="button" data-scroll="${id}">${t}</button>`).join("");

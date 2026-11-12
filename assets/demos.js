@@ -1,6 +1,6 @@
 /* Demos interactivas. Todas usan datos de ejemplo inventados para explicar cómo funciona cada proyecto.
-   Cada demo es { state(), view(s) -> html, on(s, accion, valor, api), auto: [pasos] }.
-   Los botones llevan data-a (acción) y data-v (valor). "auto" es la lista de botones que la demo pulsa sola al abrirse. */
+   Cada demo es { state(), view(s) -> html, on(s, accion, valor, api), guia(s) -> { t, sel, fin } }.
+   Los botones llevan data-a (acción) y data-v (valor). "guia" dice, según el estado, qué explica el paso actual y qué botón pulsa «Siguiente». */
 
 const ICONS = {
   home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
@@ -84,7 +84,7 @@ const flujo = (pasos, fin) => ({
     <div class="panel" aria-live="polite">${done ? okMsg(fin) + B("reset", "", "Ver de nuevo", "mk-btn ghost") : `<span class="label">Paso ${s.i + 1} de ${pasos.length}</span><h4>${cur.t}</h4>${cur.panel}${B("next", "", cur.btn)}`}</div></div>`;
   },
   on: (s, a) => { a === "next" ? s.i++ : s.i = 0; },
-  auto: pasos.map(() => "[data-a=next]")
+  guia: s => s.i < pasos.length ? { t: `${pasos[s.i].t}. ${pasos[s.i].d}`, sel: "[data-a=next]" } : { t: fin, fin: 1 }
 });
 const sem = (k, t) => `<div class="sem"><div class="luz" aria-hidden="true"><i class="r ${k === "r" ? "on" : ""}"></i><i class="a ${k === "a" ? "on" : ""}"></i><i class="v ${k === "v" ? "on" : ""}"></i></div><div><span class="label">Estatus</span><p><b>${t}</b></p></div></div>`;
 const archivos = l => `<div class="mk-list">${l.map(f => `<div class="mk-row">${svg("file")}<span class="grow mono">${f}</span></div>`).join("")}</div>`;
@@ -126,7 +126,13 @@ const DEMOS = {
       else if (a === "enviar" && !s.busy) { s.busy = true; api.later(900, () => { s.busy = false; s.sent = true; s.hechas.push(s.hab); s.limpias += 2; s.tipo === "Tendido" ? s.tend += 2 : s.camb += 2; s.evid.unshift(s.hab); }); }
       else if (a === "otra") Object.assign(s, { step: 0, hab: "", antes: false, chk: [], despues: false, sent: false });
     },
-    auto: ["[data-a=hab]", "[data-a=antes]", "[data-a=next]", ...CHK.map(() => "[data-a=chk][aria-checked=false]"), "[data-a=next]", "[data-a=despues]", "[data-a=next]", "[data-a=enviar]"]
+    guia: s => s.sent ? { t: "Listo: el cliente ya ve la evidencia en su tablero. Así se acabaron las multas por habitaciones mal reportadas.", fin: 1 }
+      : s.busy ? { t: "Enviando la evidencia…" }
+      : s.step === 0 ? { t: "El operario elige la habitación que va a limpiar.", sel: "[data-a=hab]" }
+      : s.step === 1 ? (s.antes ? { t: "Foto guardada. Continúa al checklist.", sel: "[data-a=next]" } : { t: "Antes de limpiar, toma una foto de cómo encontró la habitación.", sel: "[data-a=antes]" })
+      : s.step === 2 ? (s.chk.length < CHK.length ? { t: "Marca cada punto del checklist (" + s.chk.length + " de " + CHK.length + ").", sel: "[data-a=chk][aria-checked=false]" } : { t: "Checklist completo. Continúa.", sel: "[data-a=next]" })
+      : s.step === 3 ? (s.despues ? { t: "Foto guardada. Revisa el resumen.", sel: "[data-a=next]" } : { t: "Al terminar, toma la foto de cómo quedó.", sel: "[data-a=despues]" })
+      : { t: "Envía la evidencia. El cliente la ve al instante.", sel: "[data-a=enviar]" }
   },
 
   minelaundry: (() => {
@@ -143,7 +149,11 @@ const DEMOS = {
         else if (a === "cobrar" && s.ticket.length) { s.ordenes.unshift({ n: s.ordenes[0].n + 1, pz: s.ticket.length, lista: false }); s.ticket = []; }
         else if (a === "lista") { s.ordenes.find(o => o.n === +v).lista = true; s.correo = +v; }
       },
-      auto: ["[data-a=add]", "[data-a=add][data-v='1']", "[data-a=cobrar]", "[data-a=lista]"]
+      guia: s => s.correo ? { t: "Listo: el cliente recibió su correo y cada prenda quedó registrada en su orden.", fin: 1 }
+        : s.ordenes.length > 1 && !s.ticket.length ? { t: "La ropa ya está lavada. Marca la orden como lista.", sel: "[data-a=lista]" }
+        : s.ticket.length === 0 ? { t: "Llega un cliente. Agrega su primera prenda a la orden.", sel: "[data-a=add]" }
+        : s.ticket.length === 1 ? { t: "Agrega otra prenda.", sel: "[data-a=add][data-v='1']" }
+        : { t: "Cobra y crea la orden. Cada prenda queda registrada.", sel: "[data-a=cobrar]" }
     };
   })(),
 
@@ -162,15 +172,19 @@ const DEMOS = {
       return `<div class="panel"><div class="demo-top"><h4>Día ${s.dia} de 14 · turno ${s.turno} en sitio</h4><span class="mk-pill info">${ocup} de 12 ocupadas</span></div>
         <div class="days" role="img" aria-label="Día ${s.dia} del ciclo de 14">${Array.from({ length: 14 }, (_, i) => `<i class="${i < s.dia ? "on" : ""}"></i>`).join("")}</div>
         <div class="rooms" aria-live="polite">${s.rooms.map(r => `<div class="room ${r.e}"><b>${r.n}</b><span>${txt[r.e]}</span></div>`).join("")}</div>
-        <div class="btns">${limp ? B("entrar", "", `Asignar al turno ${s.turno} que entra`, "mk-btn sm") : B("acomodar", "", `Acomodar a los ${s.llegan} que llegan`, "mk-btn sm", s.llegan ? "" : "disabled") + B("dia", "", s.dia < 14 ? "Avanzar un día" : "Cambio de turno", "mk-btn sm ghost")}</div>
+        <div class="btns">${limp ? B("entrar", "", `Asignar al turno ${s.turno} que entra`, "mk-btn sm") : B("acomodar", "", s.llegan ? `Acomodar a los ${s.llegan} que llegan` : "Sin llegadas hoy", "mk-btn sm", s.llegan ? "" : "disabled") + B("dia", "", s.dia < 14 ? "Avanzar un día" : "Cambio de turno", "mk-btn sm ghost")}</div>
         <p class="mk-note">${limp ? "Salió un turno. Las habitaciones pasan a limpieza antes de asignarse." : "Cada 14 días sale un turno y entra otro."}</p></div>`;
     },
     on: (s, a) => {
       if (a === "acomodar") { s.rooms.filter(r => r.e === "L").slice(0, s.llegan).forEach(r => r.e = s.turno); s.llegan = 0; }
       else if (a === "dia") { if (s.dia < 14) s.dia++; else { s.dia = 1; s.turno = s.turno === "A" ? "B" : "A"; s.rooms.forEach(r => { if (r.e !== "L") r.e = "C"; }); } }
-      else if (a === "entrar") { s.rooms.forEach((r, i) => r.e = i < 9 ? s.turno : "L"); s.llegan = 3; }
+      else if (a === "entrar") { s.rooms.forEach((r, i) => r.e = i < 9 ? s.turno : "L"); s.llegan = 0; s.fin = true; }
     },
-    auto: ["[data-a=acomodar]", "[data-a=dia]", "[data-a=dia]", "[data-a=dia]", "[data-a=entrar]"]
+    guia: s => s.fin ? { t: "Listo: entró el turno nuevo y el ciclo de 14 días vuelve a empezar.", fin: 1 }
+      : s.rooms.some(r => r.e === "C") ? { t: "Salió un turno. Asigna las habitaciones al turno que entra.", sel: "[data-a=entrar]" }
+      : s.llegan ? { t: "Hoy llegan " + s.llegan + " personas. Acomódalas en habitaciones libres.", sel: "[data-a=acomodar]" }
+      : s.dia < 14 ? { t: "Avanza al siguiente día del ciclo.", sel: "[data-a=dia]" }
+      : { t: "Día 14: toca cambio de turno.", sel: "[data-a=dia]" }
   },
 
   "rh-bot": (() => {
@@ -183,7 +197,7 @@ const DEMOS = {
       state: () => ({ msgs: [[0, "Hola, soy RH Bot. Te ayudo con vacaciones, permisos, nómina, quejas y reportes."]], typing: false }),
       view: s => phone("RH Bot", "Asistente virtual de RH", `<div class="chat" role="log" aria-live="polite">${s.msgs.map(m => `<div class="bub ${m[0] ? "me" : ""}">${m[1]}</div>`).join("")}${s.typing ? '<div class="bub dots3" aria-label="Escribiendo"><i></i><i></i><i></i></div>' : ""}</div><div class="mk-h">Preguntas de ejemplo</div><div class="mk-chips">${QA.map((q, i) => B("ask", i, q[0], "mk-chip", s.typing ? "disabled" : "")).join("")}</div>`, "", "data-bottom"),
       on: (s, a, v, api) => { if (s.typing) return; s.msgs.push([1, QA[v][0]]); s.typing = true; api.later(1100, () => { s.typing = false; s.msgs.push([0, QA[v][1]]); }); },
-      auto: ["[data-a=ask][data-v='0']", 1500, "[data-a=ask][data-v='1']", 1500, "[data-a=ask][data-v='2']"]
+      guia: s => { const n = (s.msgs.length - 1) >> 1; return s.typing ? { t: "El bot está respondiendo…" } : n < QA.length ? { t: "Un operador pregunta: «" + QA[n][0] + "»", sel: "[data-a=ask][data-v='" + n + "']" } : { t: "Listo: el operador resolvió sus dudas sin esperar a RH.", fin: 1 }; }
     };
   })(),
 
@@ -191,7 +205,7 @@ const DEMOS = {
     const D = { Todos: { o: [82, 85, 84, 88, 90, 91], rot: 4.2, vac: 9, exp: 96 }, "Sitio A": { o: [80, 84, 86, 90, 93, 94], rot: 3.1, vac: 4, exp: 98 }, "Sitio B": { o: [84, 86, 82, 86, 87, 88], rot: 5.3, vac: 5, exp: 94 } };
     const M = ["May", "Jun", "Jul", "Ago", "Sep", "Oct"];
     return {
-      state: () => ({ sitio: "Todos" }),
+      state: () => ({ sitio: "Todos", vis: {} }),
       view: s => {
         const d = D[s.sitio];
         return `<div class="panel printable"><div class="demo-top"><div class="mk-chips" role="group" aria-label="Sitio">${Object.keys(D).map(k => B("sitio", k, k, "mk-chip", `aria-pressed="${s.sitio === k}"`)).join("")}</div>${B("pdf", "", "Exportar a PDF", "mk-btn sm no-print")}</div>
@@ -200,10 +214,10 @@ const DEMOS = {
           <p class="mk-note">Datos de ejemplo. «Exportar a PDF» abre la impresión del navegador; elige «Guardar como PDF».</p></div>`;
       },
       on: (s, a, v) => {
-        if (a === "sitio") s.sitio = v;
+        if (a === "sitio") { s.sitio = v; s.vis[v] = 1; }
         else if (a === "pdf") { document.body.classList.add("print-demo"); addEventListener("afterprint", () => document.body.classList.remove("print-demo"), { once: true }); print(); }
       },
-      auto: ["[data-v='Sitio A']", "[data-v='Sitio B']", "[data-v='Todos']"]
+      guia: s => !s.vis["Sitio A"] ? { t: "El gerente filtra por sitio. Mira el Sitio A.", sel: "[data-v='Sitio A']" } : !s.vis["Sitio B"] ? { t: "Ahora compara con el Sitio B.", sel: "[data-v='Sitio B']" } : { t: "Listo. Prueba «Exportar a PDF»: así lleva el tablero a su presentación semanal.", fin: 1 }
     };
   })(),
 
@@ -226,7 +240,10 @@ const DEMOS = {
         if (!(s.prod in STOCK) || !(kg > 0 && kg <= 100000)) { s.err = "Escribe los kilos: un número mayor a 0."; return; }
         s.err = ""; s.aut = false; s.res = { prod: s.prod, kg, ok: kg <= STOCK[s.prod] }; s.lineas.push(s.res);
       },
-      auto: ["[data-a=solicitar]", { prod: "Res", kg: 500 }, "[data-a=solicitar]", "[data-a=aut]"]
+      guia: s => s.aut ? { t: "Listo: pedido autorizado con un resumen claro, sin cadena de correos.", fin: 1 }
+        : s.lineas.length === 0 ? { t: "El planeador pide 400 kg de cerdo. El sistema revisa si hay.", set: { prod: "Cerdo", kg: 400 }, sel: "[data-a=solicitar]" }
+        : s.lineas.length === 1 ? { t: "Ahora pide 500 kg de res. No alcanza: mira qué responde.", set: { prod: "Res", kg: 500 }, sel: "[data-a=solicitar]" }
+        : { t: "El jefe de almacén recibe el resumen y autoriza.", sel: "[data-a=aut]" }
     };
   })(),
 
@@ -242,7 +259,7 @@ const DEMOS = {
         else if (a === "pedir") { s.turno = true; api.later(2600, () => { s.listo = true; }); }
         else Object.assign(s, { sel: -1, turno: false, listo: false });
       },
-      auto: ["[data-a=sel]", "[data-a=pedir]"]
+      guia: s => s.listo ? { t: "Listo: el comensal recoge su pedido sin haber hecho fila.", fin: 1 } : s.turno ? { t: "Cocina prepara el pedido. El comensal espera sentado…" } : s.sel < 0 ? { t: "El comensal toca lo que quiere en la pantalla.", sel: "[data-a=sel]" } : { t: "Confirma el pedido y recibe su turno.", sel: "[data-a=pedir]" }
     };
   })(),
 
@@ -256,7 +273,7 @@ const DEMOS = {
       Gerentes: [["Aumento de servicios con el cliente", 3, 2, ""], ["Rotación", 4, 5, "%", 1]]
     };
     return {
-      state: () => ({ nivel: "Operarios" }),
+      state: () => ({ nivel: "Operarios", vis: { Operarios: 1 } }),
       view: s => {
         const ms = N[s.nivel].map(m => ({ m, ok: m[4] ? m[1] <= m[2] : m[1] >= m[2] })), aplica = ms.every(x => x.ok);
         return `<div class="panel"><div class="mk-chips" role="group" aria-label="Nivel">${Object.keys(N).map(k => B("nivel", k, k, "mk-chip", `aria-pressed="${s.nivel === k}"`)).join("")}</div>
@@ -264,8 +281,8 @@ const DEMOS = {
           ${ms.map(({ m, ok }) => `<div class="mk-row" style="flex-wrap:wrap"><div class="grow"><b>${m[0]}</b><small>Meta: ${m[2]}${m[3]} ${m[4] ? "o menos" : "o más"}</small></div><b>${m[1]}${m[3]}</b><span class="${ok ? "txt-ok" : "txt-bad"}">${ok ? "✓ Cumple" : "✗ No cumple"}</span><div class="mk-bar-pp" style="flex-basis:100%"><i style="width:${Math.min(100, m[1] / (Math.max(m[1], m[2]) * 1.1) * 100)}%"></i></div></div>`).join("")}
           <div class="verdict ${aplica ? "si" : "no"}">${svg(aplica ? "check" : "x")}${aplica ? "Aplica bono" : "No aplica bono"}</div></div></div>`;
       },
-      on: (s, a, v) => { if (v in N) s.nivel = v; },
-      auto: Object.keys(N).slice(1).map(k => `[data-v='${k}']`)
+      on: (s, a, v) => { if (v in N) { s.nivel = v; s.vis[v] = 1; } },
+      guia: s => { const k = Object.keys(N).find(k => !s.vis[k]); return k ? { t: "Cada nivel se mide distinto. Mira el de " + k.toLowerCase() + ".", sel: "[data-v='" + k + "']" } : { t: "Listo: cada nivel tiene su métrica y un resultado claro.", fin: 1 }; }
     };
   })(),
 
@@ -288,7 +305,7 @@ const DEMOS = {
         else if (a === "enviar") s.est = 1;
         else if (a === "aprobar") s.est = 2;
       },
-      auto: ["[data-a=add]", "[data-a=enviar]", "[data-a=aprobar]"]
+      guia: s => s.est === 2 ? { t: "Listo: gasto aprobado sin Excel ni correos. El coordinador gana tiempo para sus visitas.", fin: 1 } : s.est === 1 ? { t: "La solicitud llega a una sola persona. Apruébala.", sel: "[data-a=aprobar]" } : s.gastos.length < 2 ? { t: "El coordinador captura un gasto de comida.", sel: "[data-a=add]" } : { t: "Envía sus gastos a aprobación.", sel: "[data-a=enviar]" }
     };
   })(),
 
@@ -340,42 +357,39 @@ const DEMOS = {
         if (a === "rango") s.rango = v;
         else if (a === "api" && !s.carga) { s.carga = true; api.later(800, () => { s.carga = false; s.v++; }); }
       },
-      auto: [{}, "[data-v='Mes']", "[data-a=api]"]
+      guia: s => s.carga ? { t: "Consultando la API…" } : s.v ? { t: "Listo: tres gráficas dibujadas con código, sin licencias de Power BI.", fin: 1 } : s.rango === "Semana" ? { t: "Cambia el periodo: las gráficas se redibujan.", sel: "[data-v='Mes']" } : { t: "Actualiza los datos, como si llegaran de una API.", sel: "[data-a=api]" }
     };
   })()
 };
 
-/* ── motor: dibuja la demo, la ejecuta sola al entrar a la vista y se detiene si la persona la toca ── */
+/* ── motor: dibuja la demo y una barra de guía. La persona avanza con «Siguiente» o tocando la demo directamente. ── */
 function mountDemo(root) {
   const d = DEMOS[root.dataset.demo]; if (!d) return;
-  let s, vida = 0, auto = 0, timers = [];
-  const wait = ms => new Promise(r => setTimeout(r, ms));
+  let s, vida = 0, timers = [];
+  const bar = document.createElement("div"); bar.className = "guia"; bar.setAttribute("aria-live", "polite"); root.before(bar);
   const draw = () => {
-    const f = document.activeElement, k = root.contains(f) && f.dataset.a ? f.dataset : null;
+    const f = document.activeElement, k = root.contains(f) && f.dataset.a ? f.dataset : null, enBarra = bar.contains(f);
     root.innerHTML = d.view(s);
     root.querySelectorAll("[data-bottom]").forEach(e => e.scrollTop = e.scrollHeight);
-    // al redibujar se pierde el foco del teclado: se devuelve al mismo botón o al primero disponible
-    if (k) ([...root.querySelectorAll("[data-a]")].find(e => e.dataset.a === k.a && e.dataset.v === k.v && !e.disabled) || root.querySelector("[data-a]:not(:disabled)") || root).focus({ preventScroll: true });
+    const g = d.guia(s);
+    bar.innerHTML = `<p>${g.fin ? svg("check") : ""}<span>${g.t}</span></p>` + (g.fin ? `<button type="button" class="btn ghost" data-g="re">${svg("redo")}Ver de nuevo</button>` : `<button type="button" class="btn" data-g="next" aria-disabled="${!g.sel}">Siguiente ${svg("arrow")}</button>`);
+    bar.classList.toggle("fin", !!g.fin);
+    if (g.sel && !g.set) root.querySelector(g.sel + ":not(:disabled)")?.classList.add("hint");
+    // al redibujar se pierde el foco del teclado: se devuelve al mismo botón
+    if (enBarra) bar.querySelector("button").focus({ preventScroll: true });
+    else if (k) ([...root.querySelectorAll("[data-a]")].find(e => e.dataset.a === k.a && e.dataset.v === k.v && !e.disabled) || root.querySelector("[data-a]:not(:disabled)") || root).focus({ preventScroll: true });
   };
   const api = { later(ms, fn) { const v = vida; timers.push(setTimeout(() => { if (v === vida && root.isConnected) { fn(); draw(); } }, reduce ? Math.min(ms, 80) : ms)); } };
+  const start = () => { vida++; timers.forEach(clearTimeout); timers = []; s = d.state(); draw(); };
   root.onclick = e => { const el = e.target.closest("[data-a]"); if (el && root.contains(el) && !el.disabled) { d.on(s, el.dataset.a, el.dataset.v, api); draw(); } };
   root.oninput = e => { if (e.target.name) s[e.target.name] = e.target.value; };
-  root.addEventListener("pointerdown", () => auto++);
-  root.addEventListener("keydown", () => auto++);
-  async function play() {
-    const a = ++auto, vivo = () => a === auto && root.isConnected;
-    for (const st of d.auto || []) {
-      await wait(typeof st === "number" ? st : 750); if (!vivo()) return;
-      if (typeof st === "number") continue;
-      if (typeof st === "object") { Object.assign(s, st); draw(); continue; }
-      root.querySelector(st + ":not(:disabled)")?.classList.add("hint");
-      await wait(450); if (!vivo()) return;
-      root.querySelector(st + ":not(:disabled)")?.click();
-    }
-  }
-  const start = () => { vida++; timers.forEach(clearTimeout); timers = []; s = d.state(); draw(); };
-  root._restart = () => { start(); if (!reduce) play(); };
+  bar.onclick = e => {
+    const b = e.target.closest("[data-g]"); if (!b) return;
+    if (b.dataset.g === "re") return start();
+    const g = d.guia(s); if (!g.sel) return;
+    if (g.set) { Object.assign(s, g.set); draw(); }
+    root.querySelector(g.sel + ":not(:disabled)")?.click();
+  };
+  root._restart = start;
   start();
-  if (reduce || !("IntersectionObserver" in window)) return; // con movimiento reducido la demo queda lista para usarse a mano
-  new IntersectionObserver((en, o) => { if (en[0].isIntersecting) { o.disconnect(); play(); } }, { threshold: .25 }).observe(root);
 }

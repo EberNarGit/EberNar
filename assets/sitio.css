@@ -186,3 +186,27 @@ details.tbl summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--mu
   body.print-demo .printable{position:absolute;left:0;top:0;width:100%}
   .no-print{display:none!important}
 }
+
+/* la banda es un elemento posicionado: sin esto pinta encima de las tarjetas que se enciman en ella */
+.layout{position:relative;z-index:1}
+
+/* detalle: problema, solución y resultado de un vistazo */
+.tres{display:grid;gap:14px}
+@media (min-width:900px){.tres{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tres .card{display:grid;gap:10px;align-content:start}
+.tres h2.label{margin:0;display:flex;align-items:center;gap:8px}
+.tres h2 svg.i{width:26px;height:26px;padding:5px;box-sizing:border-box;border-radius:8px;background:var(--chip);color:var(--ink)}
+.tres .t-prob h2 svg.i{background:var(--warn-soft);color:var(--bad);stroke-width:2.6}
+.tres .t-sol h2 svg.i{background:var(--accent-soft);color:var(--accent)}
+.tres .t-res h2 svg.i{background:var(--pos);color:var(--pos-ink);stroke-width:2.6}
+.tres p{margin:0;font-size:15.5px}
+.tres .antes{color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:10px}
+.tres .figs{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tres .t-res{border-color:var(--g4)}
+
+/* guía de la demo */
+.guia{position:sticky;top:8px;z-index:4;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;background:var(--accent-soft);border:1px solid var(--g4);border-radius:14px;padding:10px 12px 10px 14px;box-shadow:var(--shadow)}
+.guia p{margin:0;flex:1 1 220px;font-weight:600;display:flex;gap:8px;align-items:flex-start}
+.guia p svg.i{color:var(--accent);margin-top:2px;stroke-width:2.6}
+.guia .btn[aria-disabled="true"]{opacity:.5;cursor:default;transform:none}
+.guia.fin{background:var(--card)}
