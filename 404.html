@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Página no encontrada · EberNar</title>
+<script>
+// GitHub Pages sirve este archivo en cualquier ruta que no existe. Regresa al inicio del sitio,
+// esté publicado en la raíz (ebernar.github.io) o dentro de un repositorio (usuario.github.io/repo/).
+var seg = location.pathname.split("/")[1], ir = function (b) { location.replace(b); };
+if (!seg) ir("/");
+else fetch("/" + seg + "/favicon.svg", { method: "HEAD" }).then(function (r) { ir(r.ok ? "/" + seg + "/" : "/"); }, function () { ir("/"); });
+</script>
+</head>
+<body style="font-family:system-ui,sans-serif;padding:24px">
+<p>Esta página no existe. <a href="/">Ir al inicio</a></p>
+</body>
+</html>

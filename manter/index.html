@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manter · Casas nuevas en Piedras Negras y Acuña (propuesta de rediseño)</title>
+<meta name="description" content="Propuesta conceptual de rediseño para manter.com.mx">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#02043e;--navy2:#0b0f63;--gold:#ffc629;--cream:#f6f2ea;--ink:#0b0c2a;--mute:#6b6d86;--line:rgba(2,4,62,.12);
+  --serif:"Fraunces",Georgia,serif;--sans:"Plus Jakarta Sans",system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);background:var(--cream);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.02;letter-spacing:-.02em}
+h2{font-size:clamp(2.2rem,5.4vw,4.6rem)}
+em{font-style:italic;color:var(--gold)}
+.light em{color:var(--navy2)}
+.wrap{width:min(1240px,100% - 40px);margin-inline:auto}
+section{padding:clamp(72px,10vw,140px) 0;position:relative}
+.eyebrow{font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.eyebrow::before{content:"";width:36px;height:1px;background:currentColor}
+.lead{font-size:clamp(1rem,1.4vw,1.18rem);color:var(--mute);max-width:56ch}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* preloader */
+#pre{position:fixed;inset:0;background:var(--navy);z-index:100;display:grid;place-items:center;transition:transform 1s var(--ease) .2s}
+#pre span{font-family:var(--serif);font-size:clamp(2.5rem,9vw,6rem);letter-spacing:.2em;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.35);background:linear-gradient(var(--gold),var(--gold)) no-repeat 0 0/0 100%;-webkit-background-clip:text;background-clip:text;animation:fill 1.3s var(--ease) forwards}
+@keyframes fill{to{background-size:100% 100%;-webkit-text-stroke-color:transparent}}
+body.ready #pre{transform:translateY(-100%)}
+
+/* cursor + progress */
+#bar{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--gold);transform-origin:0 50%;transform:scaleX(0);z-index:60}
+#cur{position:fixed;top:0;left:0;width:36px;height:36px;margin:-18px 0 0 -18px;border:1.5px solid var(--gold);border-radius:50%;pointer-events:none;z-index:90;mix-blend-mode:difference;transition:width .3s,height .3s,margin .3s,background .3s;display:none}
+#cur.on{width:72px;height:72px;margin:-36px 0 0 -36px;background:rgba(255,198,41,.25)}
+@media(hover:hover) and (pointer:fine){#cur{display:block}}
+
+/* nav */
+header{position:fixed;inset:0 0 auto 0;z-index:50;transition:transform .5s var(--ease),background .4s,backdrop-filter .4s}
+header.hide{transform:translateY(-100%)}
+header.solid{background:rgba(2,4,62,.82);backdrop-filter:blur(14px)}
+nav{display:flex;align-items:center;justify-content:space-between;height:78px;color:#fff}
+.logo{font-family:var(--sans);font-weight:700;letter-spacing:.32em;font-size:1.25rem}
+.logo b{color:var(--gold)}
+.links{display:flex;gap:34px;font-size:.84rem;font-weight:600;letter-spacing:.06em}
+.links a{position:relative;padding:6px 0}
+.links a::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:100% 50%;transition:transform .4s var(--ease)}
+.links a:hover::after{transform:scaleX(1);transform-origin:0 50%}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:99px;font-weight:700;font-size:.9rem;background:var(--gold);color:var(--navy);transition:transform .25s var(--ease),box-shadow .3s;will-change:transform}
+.btn:hover{box-shadow:0 14px 34px -10px rgba(255,198,41,.7)}
+.btn i{font-style:normal;transition:transform .3s var(--ease)}
+.btn:hover i{transform:translateX(5px)}
+.btn.ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.btn.dark{background:var(--navy);color:#fff}
+#burger{display:none;width:44px;height:44px;color:#fff;font-size:1.5rem}
+@media(max-width:900px){
+  #burger{display:block}
+  .links{position:fixed;inset:78px 0 auto 0;background:var(--navy);flex-direction:column;gap:0;padding:10px 24px 28px;transform:translateY(-130%);transition:transform .5s var(--ease)}
+  .links a{padding:16px 0;border-bottom:1px solid rgba(255,255,255,.12);font-size:1rem}
+  .links.open{transform:none}
+  nav>.btn{display:none}
+}
+
+/* hero */
+.hero{min-height:100svh;padding:0;color:#fff;display:flex;align-items:flex-end;background:var(--navy);overflow:hidden}
+.slides,.slides div{position:absolute;inset:0}
+.slides div{background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease;transform:scale(1.02)}
+.slides div.on{opacity:1;animation:ken 9s linear forwards}
+@keyframes ken{to{transform:scale(1.14) translateY(-1.5%)}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,4,62,.55) 0%,rgba(2,4,62,.15) 35%,rgba(2,4,62,.92) 100%)}
+.hero .wrap{position:relative;z-index:2;padding-bottom:clamp(40px,7vw,90px);padding-top:140px}
+.hero h1{font-size:clamp(3.2rem,11vw,10rem);margin:0 0 26px}
+.split .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.split .w>span{display:inline-block;transform:translateY(110%);transition:transform 1.1s var(--ease)}
+.ready .split.in .w>span,.ready .hero .split .w>span{transform:none}
+.hero p{max-width:50ch;font-size:clamp(1rem,1.5vw,1.2rem);color:rgba(255,255,255,.85)}
+.hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+.hero .meta{display:grid;grid-template-columns:repeat(4,auto);gap:clamp(20px,5vw,70px);justify-content:start;margin-top:clamp(40px,6vw,76px);padding-top:28px;border-top:1px solid rgba(255,255,255,.2)}
+.meta b{display:block;font-family:var(--serif);font-size:clamp(1.8rem,4vw,3.2rem);font-weight:400;line-height:1;color:var(--gold)}
+.meta small{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;opacity:.8}
+.fade{opacity:0;transform:translateY(24px);transition:opacity 1s var(--ease) var(--d,0s),transform 1s var(--ease) var(--d,0s)}
+.ready .hero .fade,.fade.in{opacity:1;transform:none}
+.dots{position:absolute;right:clamp(20px,4vw,60px);bottom:clamp(40px,7vw,90px);z-index:3;display:flex;flex-direction:column;gap:10px}
+.dots button{width:3px;height:34px;background:rgba(255,255,255,.3);transition:background .4s}
+.dots button.on{background:var(--gold)}
+@media(max-width:640px){.hero .meta{grid-template-columns:repeat(2,auto)}.dots{display:none}}
+
+/* marquee */
+.mq{background:var(--gold);color:var(--navy);padding:18px 0;overflow:hidden;white-space:nowrap}
+.mq div{display:inline-block;animation:mq 30s linear infinite;font-family:var(--serif);font-size:1.5rem;font-style:italic}
+.mq span{margin:0 28px}.mq span::after{content:"✦";margin-left:56px;font-style:normal;font-size:1rem}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* desarrollos */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:48px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{padding:10px 20px;border-radius:99px;font-size:.84rem;font-weight:600;box-shadow:inset 0 0 0 1px var(--line);transition:.3s}
+.chips button[aria-pressed=true]{background:var(--navy);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:22px;perspective:1400px}
+.card{grid-column:span 2;position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/5;color:#fff;background:var(--navy);transform-style:preserve-3d;transition:transform .5s var(--ease),opacity .5s,box-shadow .5s;will-change:transform}
+.card:nth-child(1),.card:nth-child(2){grid-column:span 3;aspect-ratio:16/11}
+.card:hover{box-shadow:0 40px 70px -30px rgba(2,4,62,.6)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}
+.card:hover img{transform:scale(1.08)}
+.card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(2,4,62,.92))}
+.card .in{position:absolute;inset:auto 0 0 0;padding:26px;z-index:2;transform:translateZ(40px)}
+.card h3{font-size:clamp(1.7rem,3vw,2.6rem)}
+.card .tag{position:absolute;top:20px;left:20px;z-index:2;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);padding:6px 14px;border-radius:99px;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.card .row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:10px;font-size:.88rem}
+.card .row b{color:var(--gold);font-size:1.05rem}
+.card .go{width:46px;height:46px;border-radius:50%;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-size:1.2rem;flex:none;transform:rotate(-45deg);transition:transform .4s var(--ease)}
+.card:hover .go{transform:none}
+.card.off{display:none}
+@media(max-width:900px){.card,.card:nth-child(1),.card:nth-child(2){grid-column:span 6;aspect-ratio:4/3}}
+
+/* big scrolling word */
+.big{padding:10px 0;overflow:hidden}
+.big div{font-family:var(--serif);font-size:clamp(5rem,17vw,16rem);line-height:1;white-space:nowrap;color:transparent;-webkit-text-stroke:1.5px rgba(2,4,62,.22);will-change:transform}
+
+/* modelos */
+.models{background:var(--navy);color:#fff}
+.models .lead{color:rgba(255,255,255,.7)}
+.mwrap{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(24px,5vw,70px);align-items:center;margin-top:50px}
+.mimg{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:5/4;background:#0b0f63}
+.mimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.08);transition:opacity .8s,transform 1.4s var(--ease)}
+.mimg img.on{opacity:1;transform:none}
+.mtabs{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:30px}
+.mtabs button{font-family:var(--serif);font-size:clamp(1.3rem,2.2vw,1.9rem);opacity:.4;transition:.3s;padding:4px 0;border-bottom:2px solid transparent}
+.mtabs button[aria-selected=true]{opacity:1;color:var(--gold);border-color:var(--gold);font-style:italic}
+.price{font-family:var(--serif);font-size:clamp(2.6rem,6vw,4.8rem);line-height:1}
+.price small{font-family:var(--sans);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;display:block;opacity:.6;margin-bottom:8px}
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0}
+.specs div{border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:16px 12px;text-align:center}
+.specs b{display:block;font-family:var(--serif);font-size:1.7rem;font-weight:400;color:var(--gold)}
+.specs small{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+#mwhere{font-size:.9rem;opacity:.75;margin-bottom:26px}
+@media(max-width:900px){.mwrap{grid-template-columns:1fr}.specs{grid-template-columns:repeat(2,1fr)}}
+
+/* simulador */
+.sim{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,70px);align-items:center}
+.panel{background:#fff;border-radius:28px;padding:clamp(24px,4vw,44px);box-shadow:0 40px 80px -50px rgba(2,4,62,.5)}
+.panel label{display:flex;justify-content:space-between;font-size:.84rem;font-weight:600;margin:22px 0 8px}
+.panel label:first-child{margin-top:0}
+.panel output{color:var(--navy2);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--navy);height:28px}
+.result{margin-top:28px;background:var(--navy);color:#fff;border-radius:20px;padding:26px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.result b{font-family:var(--serif);font-size:clamp(2rem,4.5vw,3.2rem);font-weight:400;color:var(--gold);line-height:1;display:block}
+.result small{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;opacity:.7}
+.note{font-size:.74rem;color:var(--mute);margin-top:14px}
+@media(max-width:900px){.sim{grid-template-columns:1fr}}
+
+/* financiamiento */
+.fin{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:24px;overflow:hidden;margin-top:50px}
+.fin a{background:var(--cream);padding:34px 26px 30px;position:relative;overflow:hidden;transition:color .5s}
+.fin a::before{content:"";position:absolute;inset:0;background:var(--navy);transform:translateY(101%);transition:transform .6s var(--ease)}
+.fin a:hover{color:#fff}.fin a:hover::before{transform:none}
+.fin a>*{position:relative}
+.fin span{font-family:var(--serif);font-style:italic;color:var(--gold);font-size:1.1rem;-webkit-text-stroke:.3px var(--navy)}
+.fin a:hover span{-webkit-text-stroke:0}
+.fin h3{font-size:1.7rem;margin:50px 0 10px}
+.fin p{font-size:.9rem;opacity:.75}
+@media(max-width:900px){.fin{grid-template-columns:1fr 1fr}}@media(max-width:520px){.fin{grid-template-columns:1fr}}
+
+/* proceso */
+.steps{position:relative;margin-top:60px;display:grid;gap:0}
+.steps::before,.steps i{content:"";position:absolute;left:27px;top:0;bottom:0;width:2px;background:var(--line)}
+.steps i{background:var(--gold);transform-origin:50% 0;transform:scaleY(0)}
+.step{display:grid;grid-template-columns:56px 1fr;gap:28px;padding:26px 0;position:relative}
+.step b{width:56px;height:56px;border-radius:50%;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-family:var(--serif);font-size:1.3rem;font-weight:400;z-index:1}
+.step h3{font-size:1.8rem;margin-bottom:6px}
+.step p{color:var(--mute);max-width:60ch}
+
+/* nosotros */
+.about{background:var(--navy);color:#fff;overflow:hidden}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,90px);align-items:center}
+.aimg{border-radius:24px;overflow:hidden;aspect-ratio:4/5;clip-path:inset(100% 0 0 0);transition:clip-path 1.4s var(--ease)}
+.aimg.in{clip-path:inset(0)}
+.aimg img{width:100%;height:120%;object-fit:cover;will-change:transform}
+.about p{color:rgba(255,255,255,.75);margin-top:22px;max-width:54ch}
+.vals{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:36px}
+.vals div{border-top:1px solid rgba(255,255,255,.2);padding-top:14px}
+.vals b{font-family:var(--serif);font-size:1.35rem;font-weight:400;color:var(--gold);font-style:italic}
+.vals p{font-size:.86rem;margin-top:4px}
+@media(max-width:900px){.agrid{grid-template-columns:1fr}}
+
+/* contacto */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,90px)}
+.offices{display:grid;gap:0;margin-top:36px}
+.offices div{padding:20px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:140px 1fr;gap:16px;font-size:.92rem}
+.offices b{font-family:var(--serif);font-size:1.25rem;font-weight:400}
+.offices a{font-weight:700;color:var(--navy2)}
+form{display:grid;gap:14px}
+form input,form select{font:inherit;padding:16px 18px;border-radius:14px;border:1px solid var(--line);background:#fff;width:100%;color:var(--ink)}
+form label{font-size:.78rem;font-weight:700;letter-spacing:.06em;display:grid;gap:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#ok{display:none;background:var(--navy);color:#fff;border-radius:20px;padding:30px}
+#ok h3{font-size:2rem;color:var(--gold);margin-bottom:8px}
+#ok small{opacity:.65;display:block;margin-top:12px}
+@media(max-width:900px){.cgrid{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+
+footer{background:var(--navy);color:rgba(255,255,255,.7);padding:60px 0 34px;font-size:.86rem}
+footer .logo{color:#fff;font-size:clamp(3rem,13vw,11rem);letter-spacing:.14em;line-height:1;display:block;margin-bottom:34px}
+.frow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.16);padding-top:22px}
+.frow a:hover{color:var(--gold)}
+#wa{position:fixed;right:20px;bottom:20px;z-index:55;width:60px;height:60px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 12px 30px -8px rgba(37,211,102,.8)}
+#wa::before{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid #25d366;animation:pulse 2s infinite}
+@keyframes pulse{to{transform:scale(1.7);opacity:0}}
+#demo{position:fixed;left:20px;bottom:20px;z-index:55;background:rgba(2,4,62,.85);color:#fff;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;border-radius:99px;backdrop-filter:blur(8px)}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.fade,.split .w>span{opacity:1;transform:none}.aimg{clip-path:none}#pre{display:none}}
+</style>
+</head>
+<body>
+<div id="pre" aria-hidden="true"><span>MANTER</span></div>
+<div id="bar"></div><div id="cur"></div>
+
+<header id="hd"><nav class="wrap" aria-label="Principal">
+  <a href="#top" class="logo" aria-label="Manter, inicio"><b>M</b>ANTER</a>
+  <div class="links" id="links">
+    <a href="#desarrollos">Desarrollos</a><a href="#modelos">Modelos</a><a href="#simulador">Simulador</a><a href="#financiamiento">Financiamiento</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a>
+  </div>
+  <a href="#contacto" class="btn mag">Cotizar <i>→</i></a>
+  <button id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="links">☰</button>
+</nav></header>
+
+<main id="top">
+<section class="hero">
+  <div class="slides" id="slides" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eyebrow fade">Piedras Negras · Cd. Acuña · Saltillo</div>
+    <h1 class="split">Aquí empieza <em>tu hogar.</em></h1>
+    <p class="fade" style="--d:.5s">Casas nuevas y lotes residenciales en el norte de Coahuila. Desde 2005 construimos patrimonio con calidad, seguridad y plusvalía.</p>
+    <div class="cta fade" style="--d:.65s">
+      <a href="#desarrollos" class="btn mag">Ver desarrollos <i>→</i></a>
+      <a href="#simulador" class="btn ghost mag">Simular mi crédito</a>
+    </div>
+    <div class="meta fade" style="--d:.8s">
+      <div><b data-n="2005" data-raw>2005</b><small>Fundación</small></div>
+      <div><b data-n="23" data-pre="+">+23</b><small>Desarrollos</small></div>
+      <div><b data-n="500" data-pre="+">+500</b><small>Colaboradores</small></div>
+      <div><b data-n="3">3</b><small>Ciudades</small></div>
+    </div>
+  </div>
+  <div class="dots" id="dots"></div>
+</section>
+
+<div class="mq" aria-hidden="true"><div id="mq"></div></div>
+
+<section id="desarrollos" class="light">
+  <div class="wrap">
+    <div class="head">
+      <div><div class="eyebrow">Desarrollos disponibles</div><h2 class="split">Encuentra tu <em>lugar.</em></h2></div>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar desarrollos">
+        <button aria-pressed="true" data-f="*">Todos</button><button aria-pressed="false" data-f="pn">Piedras Negras</button><button aria-pressed="false" data-f="ac">Cd. Acuña</button><button aria-pressed="false" data-f="fr">Fraccionamientos</button><button aria-pressed="false" data-f="re">Residenciales</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<div class="big" aria-hidden="true"><div data-x="-.35">Calidad · Seguridad · Bienestar · Confianza · Calidad · Seguridad</div></div>
+
+<section id="modelos" class="models">
+  <div class="wrap">
+    <div class="eyebrow">Modelos de vivienda</div>
+    <h2 class="split">Seis formas de <em>vivir mejor.</em></h2>
+    <div class="mwrap">
+      <div class="mimg fade" id="mimg"></div>
+      <div class="fade" style="--d:.15s">
+        <div class="mtabs" id="mtabs" role="tablist" aria-label="Modelos"></div>
+        <div class="price"><small>Precio desde</small><span id="mprice"></span></div>
+        <div class="specs" id="mspecs"></div>
+        <p id="mwhere"></p>
+        <a href="#simulador" class="btn mag" id="mcta">Simular este modelo <i>→</i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="simulador" class="light">
+  <div class="wrap sim">
+    <div>
+      <div class="eyebrow">Simulador de crédito</div>
+      <h2 class="split">¿Cuánto pagarías <em>al mes?</em></h2>
+      <p class="lead fade" style="margin-top:22px">Mueve los controles y obtén una mensualidad estimada en segundos. Después, un asesor te confirma tu precalificación con INFONAVIT, FOVISSSTE o tu banco.</p>
+    </div>
+    <div class="panel fade">
+      <label for="sp">Valor de la casa <output id="op"></output></label>
+      <input type="range" id="sp" min="725000" max="2900000" step="5000" value="945000">
+      <label for="se">Enganche <output id="oe"></output></label>
+      <input type="range" id="se" min="5" max="50" step="1" value="10">
+      <label for="sy">Plazo <output id="oy"></output></label>
+      <input type="range" id="sy" min="5" max="30" step="1" value="20">
+      <label for="sr">Tasa anual <output id="or"></output></label>
+      <input type="range" id="sr" min="6" max="15" step="0.1" value="10.5">
+      <div class="result" aria-live="polite">
+        <div><small>Mensualidad estimada</small><b id="pay"></b></div>
+        <a href="#contacto" class="btn mag">Quiero precalificar <i>→</i></a>
+      </div>
+      <p class="note">Cálculo ilustrativo con pagos fijos. No incluye seguros, comisiones ni subcuenta de vivienda. Precios sujetos a cambio sin previo aviso.</p>
+    </div>
+  </div>
+</section>
+
+<section id="financiamiento" class="light" style="padding-top:0">
+  <div class="wrap">
+    <div class="eyebrow">Financiamiento</div>
+    <h2 class="split">Tu crédito, <em>tu decisión.</em></h2>
+    <div class="fin fade">
+      <a href="#contacto"><span>01</span><h3>INFONAVIT</h3><p>Usa tus puntos y tu subcuenta de vivienda. Te acompañamos en todo el trámite.</p></a>
+      <a href="#contacto"><span>02</span><h3>FOVISSSTE</h3><p>Para trabajadores del Estado. Integramos tu expediente contigo.</p></a>
+      <a href="#contacto"><span>03</span><h3>Crédito bancario</h3><p>Elige la institución que prefieras; comparamos opciones a tu lado.</p></a>
+      <a href="#contacto"><span>04</span><h3>Contado y abonos</h3><p>Lotes residenciales en 6 o 12 mensualidades con 30% de enganche.</p></a>
+    </div>
+    <div class="steps" id="steps"><i></i>
+      <div class="step fade"><b>1</b><div><h3>Elige tu casa</h3><p>Explora desarrollos y modelos en línea o visita una casa muestra en Piedras Negras o Acuña.</p></div></div>
+      <div class="step fade"><b>2</b><div><h3>Precalifica</h3><p>Un asesor revisa contigo tu capacidad de crédito y la mejor opción de financiamiento.</p></div></div>
+      <div class="step fade"><b>3</b><div><h3>Aparta y firma</h3><p>Apartas tu vivienda, integramos tu expediente y firmas escrituras ante notario.</p></div></div>
+      <div class="step fade"><b>4</b><div><h3>Recibe tus llaves</h3><p>Entrega de tu casa con garantía y atención posventa.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="nosotros" class="about">
+  <div class="wrap agrid">
+    <div class="aimg" id="aimg"><img data-w="f30972_d535a9bf41f64bfd901e2ff61f85f739~mv2.jpeg" data-s="900x1300" alt="Desarrollo residencial Manter" data-par=".12"></div>
+    <div>
+      <div class="eyebrow">Grupo Manter S.A. de C.V.</div>
+      <h2 class="split">Líderes en el norte <em>desde 2005.</em></h2>
+      <p class="fade">Nacimos con la prioridad de desarrollar proyectos inmobiliarios con conceptos integrados que garanticen la inversión de nuestros clientes. Hoy somos una empresa consolidada en el ramo de la construcción en el norte del estado.</p>
+      <div class="vals">
+        <div class="fade"><b>Servicio</b><p>Orientados a exceder las expectativas de nuestros clientes.</p></div>
+        <div class="fade" style="--d:.1s"><b>Integridad</b><p>Coherencia entre nuestros actos y nuestra filosofía.</p></div>
+        <div class="fade" style="--d:.2s"><b>Calidad</b><p>Cumplimos los estándares para dar el mejor servicio.</p></div>
+        <div class="fade" style="--d:.3s"><b>Responsabilidad</b><p>Asumimos las consecuencias de cada tarea realizada.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="light">
+  <div class="wrap cgrid">
+    <div>
+      <div class="eyebrow">Contacto</div>
+      <h2 class="split">Hablemos de <em>tu casa.</em></h2>
+      <div class="offices fade">
+        <div><b>Piedras Negras</b><span>Av. Manuel Pérez Treviño #2750, Plaza Inova Local B-2, Col. Tecnológico<br><a href="tel:+528787832027">878 783 2027</a></span></div>
+        <div><b>Cd. Acuña</b><span>Carretera Presa la Amistad, Plaza Comercial Alaska Local 204, Col. Atilano Barrera<br><a href="tel:+528777738897">877 773 8897</a></span></div>
+        <div><b>Saltillo</b><span>Oficina central · Blvd. José Sarmiento 1515-701, Col. Rancho de Peña<br><a href="tel:+528787832027">878 783 2027</a></span></div>
+      </div>
+    </div>
+    <div class="fade">
+      <form id="form">
+        <div class="two">
+          <label>Nombre<input name="n" required autocomplete="name"></label>
+          <label>Teléfono<input name="t" type="tel" required autocomplete="tel" pattern="[0-9 +()-]{10,}" title="10 dígitos"></label>
+        </div>
+        <label>Me interesa<select name="d" id="fdev"></select></label>
+        <label>Financiamiento<select name="f"><option>INFONAVIT</option><option>FOVISSSTE</option><option>Crédito bancario</option><option>Contado</option><option>Aún no sé</option></select></label>
+        <button class="btn dark mag" style="justify-content:center">Solicitar cotización <i>→</i></button>
+        <p class="note">Al enviar aceptas el <a href="https://www.manter.com.mx/_files/ugd/f30972_0fa1a2b97c24436b8a460c9a6bd03488.pdf" style="text-decoration:underline">Aviso de Privacidad</a>.</p>
+      </form>
+      <div id="ok" role="status"><h3>¡Gracias!</h3><p>Un asesor te contactará en menos de 24 horas.</p><small>Prototipo: en producción este prospecto entra directo al CRM del ERP, con su desarrollo y tipo de crédito ya capturados.</small></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <span class="logo"><b>M</b>ANTER</span>
+  <div class="frow">
+    <span>© 2026 Grupo Manter S.A. de C.V.</span>
+    <span><a href="https://www.facebook.com/ManterResidenciales">Facebook</a> · <a href="https://www.instagram.com/manterresidenciales/">Instagram</a> · <a href="https://www.manter.com.mx/_files/ugd/f30972_9e10170007bc4cc4a279537c7780311c.pdf">Contrato de Adhesión</a> · <a href="https://www.manter.com.mx/about-4">Buzón de quejas</a></span>
+  </div>
+</div></footer>
+
+<a id="wa" href="https://wa.me/message/JP4EUKJLD63BJ1" aria-label="Escríbenos por WhatsApp"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm-4 6h8v1.6H8V8Zm0 3.2h8v1.6H8v-1.600Zm0 3.200h5V16H8v-1.600Z"/></svg></a>
+<div id="demo">Propuesta de rediseño · prototipo</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const W=(id,s='1200x900')=>{const[w,h]=s.split('x');return`https://static.wixstatic.com/media/${id}/v1/fill/w_${w},h_${h},al_c,q_85/m.jpg`};
+const mxn=n=>n.toLocaleString('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0});
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+// --- datos tomados de manter.com.mx (precios sujetos a cambio) ---
+const DEVS=[
+ {n:'Praderas',c:'pn',t:'fr',city:'Piedras Negras',kind:'Fraccionamiento',p:'Desde $725,000',d:'Carretera Federal 2, km 6.4',img:'f30972_d535a9bf41f64bfd901e2ff61f85f739~mv2.jpeg',u:'praderas'},
+ {n:'La Rioja',c:'pn',t:'re',city:'Piedras Negras',kind:'Residencial',p:'Desde $1,877,000',d:'Modelos Siena, Toscana y Enova',img:'f3e472_afeb045df1ea417296ff3a1f8cd67476~mv2.jpg',u:'larioja'},
+ {n:'Los Bosques',c:'pn',t:'re',city:'Piedras Negras',kind:'Residencial',p:'Lotes desde 200 m²',d:'Lotes y vivienda en privada',img:'f3e472_2cc945c0a119499a96cddcc8773e5edf~mv2.jpg',u:'losbosques'},
+ {n:'Paseo del Sol',c:'ac',t:'fr',city:'Cd. Acuña',kind:'Fraccionamiento',p:'Desde $725,000',d:'Av. Sur Poniente',img:'f3e472_813150dddb444683b5090f82534e8db9~mv2.jpg',u:'paseodelsol'},
+ {n:'Terrazas',c:'ac',t:'re',city:'Cd. Acuña',kind:'Residencial',p:'Lotes desde $4,900 / m²',d:'Tour virtual 360°',img:'f3e472_c245995709574cc7a2a139974cc0fbff~mv2.jpg',u:'terrazas'}];
+const MODELS=[
+ {n:'Manter',p:725000,m:44,r:2,b:'1',w:'Praderas · Paseo del Sol',img:'f3e472_7c71e7ace2434c6e9cea31292476a735~mv2.jpeg'},
+ {n:'Premium',p:945000,m:57,r:3,b:'1',w:'Praderas · Paseo del Sol',img:'f3e472_297a7621fe7c46029fdbe6e4799bc666~mv2.jpg'},
+ {n:'Real',p:1350000,m:75,r:3,b:'1½',w:'Praderas · Paseo del Sol',img:'f3e472_813150dddb444683b5090f82534e8db9~mv2.jpg'},
+ {n:'Siena',p:1877000,m:101,r:3,b:'1½',w:'La Rioja · Los Bosques · Terrazas',img:'f3e472_0a4e8f440a694b9eaa6e4b6ba890fc4d~mv2.jpg'},
+ {n:'Toscana',p:2275000,m:129,r:3,b:'2½',w:'La Rioja · Los Bosques · Terrazas',img:'f3e472_4a5998a442c14ec3bbbbf5beec00d303~mv2.jpg'},
+ {n:'Enova',p:2615000,m:147,r:3,b:'2½',w:'La Rioja · Los Bosques',img:'f3e472_afeb045df1ea417296ff3a1f8cd67476~mv2.jpg'}];
+
+$$('img[data-w]').forEach(i=>i.src=W(i.dataset.w,i.dataset.s));
+
+// hero slideshow
+const HERO=['f30972_d535a9bf41f64bfd901e2ff61f85f739~mv2.jpeg','f3e472_c245995709574cc7a2a139974cc0fbff~mv2.jpg','f3e472_4b43d01aa0314a0d9a9c4c8b60b89450~mv2.jpg'];
+let hi=0,ht;
+$('#slides').innerHTML=HERO.map(id=>`<div style="background-image:url('${W(id,'1920x1080')}')"></div>`).join('');
+$('#dots').innerHTML=HERO.map((_,i)=>`<button aria-label="Imagen ${i+1}"></button>`).join('');
+const slide=i=>{hi=(i+HERO.length)%HERO.length;$$('#slides div').forEach((d,j)=>d.classList.toggle('on',j==hi));$$('#dots button').forEach((d,j)=>d.classList.toggle('on',j==hi));clearTimeout(ht);if(!reduce)ht=setTimeout(()=>slide(hi+1),6500)};
+$$('#dots button').forEach((b,i)=>b.onclick=()=>slide(i));slide(0);
+
+// split de titulares por palabra
+$$('.split').forEach(h=>{let k=0;const wrap=n=>{if(n.nodeType==3){const f=document.createDocumentFragment();n.textContent.split(/(\s+)/).forEach(t=>{if(!t.trim())return f.append(t);const w=document.createElement('span');w.className='w';w.innerHTML=`<span style="transition-delay:${k++*70}ms">${t}</span>`;f.append(w)});n.replaceWith(f)}else[...n.childNodes].forEach(wrap)};[...h.childNodes].forEach(wrap)});
+
+// marquee
+$('#mq').innerHTML=Array(2).fill(['INFONAVIT','FOVISSSTE','Crédito bancario','Lotes residenciales','Casas nuevas','Plusvalía garantizada','Acceso controlado 24 h','Áreas verdes'].map(t=>`<span>${t}</span>`).join('')).join('');
+
+// desarrollos + filtro
+$('#grid').innerHTML=DEVS.map((d,i)=>`<a class="card fade" style="--d:${i*.08}s" data-k="${d.c} ${d.t}" href="https://www.manter.com.mx/${d.u}"><img loading="lazy" src="${W(d.img,'1000x800')}" alt="${d.n}, ${d.kind.toLowerCase()} en ${d.city}"><span class="tag">${d.kind} · ${d.city}</span><div class="in"><h3>${d.n}</h3><div class="row"><span>${d.d}<br><b>${d.p}</b></span><span class="go" aria-hidden="true">→</span></div></div></a>`).join('');
+$('#chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;$$('#chips button').forEach(x=>x.setAttribute('aria-pressed',x==b));$$('.card').forEach(c=>c.classList.toggle('off',b.dataset.f!='*'&&!c.dataset.k.includes(b.dataset.f)))};
+$('#fdev').innerHTML=DEVS.map(d=>`<option>${d.n} (${d.city})</option>`).join('')+'<option>Aún no decido</option>';
+
+// modelos
+$('#mimg').innerHTML=MODELS.map(m=>`<img loading="lazy" src="${W(m.img,'1250x1000')}" alt="Fachada modelo ${m.n}">`).join('');
+$('#mtabs').innerHTML=MODELS.map((m,i)=>`<button role="tab" data-i="${i}">${m.n}</button>`).join('');
+const model=i=>{const m=MODELS[i];$$('#mtabs button').forEach((b,j)=>b.setAttribute('aria-selected',j==i));$$('#mimg img').forEach((x,j)=>x.classList.toggle('on',j==i));
+ count($('#mprice'),m.p,mxn);$('#mspecs').innerHTML=[[m.m+' m²','Construcción'],[m.r,'Recámaras'],[m.b,'Baños'],['✓','Cochera']].map(s=>`<div><b>${s[0]}</b><small>${s[1]}</small></div>`).join('');
+ $('#mwhere').textContent='Disponible en: '+m.w;$('#mcta').onclick=()=>{$('#sp').value=m.p;sim()}};
+$('#mtabs').onclick=e=>e.target.dataset.i&&model(+e.target.dataset.i);
+
+// contador animado
+function count(el,to,fmt=n=>Math.round(n)){const from=el._v||0,t0=performance.now();el._v=to;if(reduce)return el.textContent=fmt(to);const f=t=>{const p=Math.min((t-t0)/900,1),e=1-Math.pow(1-p,4);el.textContent=fmt(Math.round(from+(to-from)*e));p<1&&requestAnimationFrame(f)};requestAnimationFrame(f)}
+model(1);
+
+// simulador: pago fijo = P·r / (1-(1+r)^-n)
+const pmt=(P,rate,years)=>{const r=rate/1200,n=years*12;return r?P*r/(1-Math.pow(1+r,-n)):P/n};
+console.assert(Math.abs(pmt(1e6,12,10)-14347.09)<1,'pmt');console.assert(pmt(1200,0,1)===100,'pmt tasa 0');
+function sim(){const p=+$('#sp').value,e=+$('#se').value,y=+$('#sy').value,r=+$('#sr').value;
+ $('#op').textContent=mxn(p);$('#oe').textContent=`${e}% · ${mxn(p*e/100)}`;$('#oy').textContent=y+' años';$('#or').textContent=r.toFixed(1)+'%';
+ count($('#pay'),pmt(p*(1-e/100),r,y),mxn)}
+$$('.panel input').forEach(i=>i.oninput=sim);sim();
+
+// formulario (prototipo, sin backend)
+$('#form').onsubmit=e=>{e.preventDefault();e.target.style.display='none';$('#ok').style.display='block'};
+
+// reveal al hacer scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);e.target.dataset.n&&!e.target.dataset.raw&&count(e.target,+e.target.dataset.n,n=>(e.target.dataset.pre||'')+n)}}),{threshold:.15});
+$$('.fade,.split,.aimg,[data-n]').forEach(e=>io.observe(e));
+
+// scroll: barra, nav, parallax, línea de pasos
+let ly=0,tick=0;
+const onScroll=()=>{const y=scrollY,h=document.documentElement.scrollHeight-innerHeight;
+ $('#bar').style.transform=`scaleX(${y/h})`;
+ $('#hd').classList.toggle('solid',y>60);$('#hd').classList.toggle('hide',y>ly&&y>500&&!$('#links').classList.contains('open'));ly=y;
+ if(!reduce){$$('[data-x]').forEach(el=>{el.style.transform=`translateX(${(el.parentElement.getBoundingClientRect().top-innerHeight)*el.dataset.x}px)`});
+  $$('[data-par]').forEach(el=>{const r=el.parentElement.getBoundingClientRect();el.style.transform=`translateY(${-(r.top+r.height/2-innerHeight/2)*el.dataset.par-r.height*.1}px)`})}
+ const s=$('#steps').getBoundingClientRect();$('#steps i').style.transform=`scaleY(${Math.max(0,Math.min(1,(innerHeight*.7-s.top)/s.height))})`;tick=0};
+addEventListener('scroll',()=>{tick||(tick=requestAnimationFrame(onScroll))},{passive:true});onScroll();
+
+// menú móvil
+$('#burger').onclick=()=>{const o=$('#links').classList.toggle('open');$('#burger').setAttribute('aria-expanded',o)};
+$('#links').onclick=()=>{$('#links').classList.remove('open');$('#burger').setAttribute('aria-expanded',false)};
+
+// cursor, botones magnéticos y tilt 3D (solo puntero fino)
+if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!reduce){
+ const c=$('#cur');let cx=0,cy=0,tx=0,ty=0;
+ addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;c.classList.toggle('on',!!e.target.closest('a,button,input,select'))});
+ (function loop(){cx+=(tx-cx)*.18;cy+=(ty-cy)*.18;c.style.transform=`translate(${cx}px,${cy}px)`;requestAnimationFrame(loop)})();
+ $$('.mag').forEach(b=>{b.onmousemove=e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.25}px,${(e.clientY-r.top-r.height/2)*.35}px)`};b.onmouseleave=()=>b.style.transform=''});
+ $$('.card').forEach(k=>{k.onmousemove=e=>{const r=k.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;k.style.transitionDelay='0s';k.style.transform=`rotateY(${x*9}deg) rotateX(${-y*9}deg) translateY(-6px)`};k.onmouseleave=()=>k.style.transform=''});
+}
+addEventListener('load',()=>setTimeout(()=>document.body.classList.add('ready'),reduce?0:1100));
+setTimeout(()=>document.body.classList.add('ready'),3500); // por si una imagen tarda
+</script>
+</body>
+</html>
