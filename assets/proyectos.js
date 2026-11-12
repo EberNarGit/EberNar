@@ -1,5 +1,5 @@
 /* Único archivo de datos del sitio. Para agregar un proyecto, copia un bloque de PROYECTOS y cambia los textos.
-   Campos: id (va en la URL), nombre, sub, icono, seccion ("proyectos" | "dashboards" | "soporte" | "web"),
+   Campos: id (va en la URL), nombre, sub, icono, seccion ("proyectos" | "dashboards" | "soporte"),
    areas (de la lista AREAS), herramientas, resumen, problema, antes, construi[], cambio[],
    cifras [[valor, etiqueta]] (solo resultados reales), demo (id en demos.js, opcional), nota (opcional). */
 
@@ -30,8 +30,7 @@ const AREAS = ["Hotelería", "RH", "Almacén", "Comedor", "Finanzas/Operación",
 
 const SECCIONES = {
   dashboards: { titulo: "Dashboards con código propio", sub: "Tableros hechos con JavaScript y HTML. No requieren licencias de Power BI.", ids: ["dashboards-codigo"] },
-  soporte: { titulo: "Soporte TI", sub: "Equipos, servidores, licencias y correos. Usuarios listos en horas.", ids: ["soporte-ti", "sap-equipos"] },
-  web: { titulo: "Web", sub: "Propuesta de rediseño para un desarrollador de vivienda.", ids: ["manter"] }
+  soporte: { titulo: "Soporte TI", sub: "Equipos, servidores, licencias y correos. Usuarios listos en horas.", ids: ["soporte-ti", "sap-equipos"] }
 };
 
 const PROYECTOS = [
@@ -192,15 +191,5 @@ const PROYECTOS = [
     construi: ["Dashboards publicados en una página web.", "Gráficas dibujadas con código, sin librerías de pago.", "Datos tomados de APIs (conexiones que entregan la información de otros sistemas)."],
     cambio: ["No requieren licencias de Power BI.", "Se abren desde cualquier navegador."],
     demo: "dashboards-codigo", demoTitulo: "Barras, línea y dona dibujadas con código"
-  },
-  {
-    id: "manter", nombre: "Rediseño web de casas Manter", sub: "Propuesta conceptual", icono: "home", seccion: "web",
-    areas: [], herramientas: ["JavaScript y HTML"],
-    resumen: "Propuesta conceptual de rediseño para un desarrollador de vivienda del norte de Coahuila.",
-    problema: "Quien busca casa quiere comparar modelos y saber cuánto pagaría, rápido y desde el celular.",
-    antes: "Es una propuesta conceptual: muestra cómo podría verse y funcionar el sitio.",
-    construi: ["Simulador de crédito.", "Catálogo de modelos.", "Filtros para encontrar casa.", "Animaciones suaves."],
-    cambio: ["Propuesta conceptual: no hay resultados medidos."],
-    enlace: { href: "manter/index.html", texto: "Abrir la propuesta completa" }
   }
 ];

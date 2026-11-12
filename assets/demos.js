@@ -48,7 +48,7 @@ const B = (a, v, html, cls = "mk-btn", extra = "") => `<button type="button" cla
 const pill = (t, k = "") => `<span class="mk-pill ${k}">${t}</span>`;
 const row = (b, small = "", right = "") => `<div class="mk-row"><div class="grow"><b>${b}</b>${small ? `<small>${small}</small>` : ""}</div>${right}</div>`;
 const phone = (t, sub, body, cls = "", attr = "") => `<div class="dev-wrap"><div class="dev ${cls}"><div class="dev-screen"><div class="mk-status" aria-hidden="true"><span>9:41</span><span>●●●</span></div><div class="mk-bar"><div><b>${t}</b><small>${sub}</small></div></div><div class="mk-body" ${attr}>${body}</div></div></div></div>`;
-const hbar = (l, v, max, cls = "") => `<div class="hbar"><span>${l}</span><div class="mk-bar-pp ${cls}"><i style="width:${Math.min(100, v / max * 100)}%"></i></div><b>${v}</b></div>`;
+const hbar = (l, v, max, cls = "", u = "") => `<div class="hbar"><span>${l}</span><div class="mk-bar-pp ${cls}"><i style="width:${Math.min(100, v / max * 100)}%"></i></div><b>${v}${u}</b></div>`;
 const okMsg = t => `<div class="sent"><span class="ok-ico">${svg("check")}</span><b>${t}</b></div>`;
 const tabla = (heads, rows) => `<details class="tbl"><summary>Ver como tabla</summary><table class="tblx"><thead><tr>${heads.map((h, i) => `<th${i ? ' class="num"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td${i ? ' class="num"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></details>`;
 
@@ -337,27 +337,37 @@ const DEMOS = {
   ], "Listo. El usuario ya puede trabajar."),
 
   "dashboards-codigo": (() => {
+    /* k: [indicador, valor, cambio contra el periodo anterior, 1 si el cambio es bueno] · a: cumplimiento por área, en el orden de d */
     const D = {
-      Semana: { t: "día", b: [["Lun", 42], ["Mar", 55], ["Mié", 48], ["Jue", 61], ["Vie", 58], ["Sáb", 30]], l: [12, 25, 37, 52, 66, 74], d: [["Hotelería", 46], ["Comedor", 28], ["Almacén", 16], ["RH", 10]] },
-      Mes: { t: "semana", b: [["S1", 260], ["S2", 294], ["S3", 281], ["S4", 318]], l: [20, 44, 69, 92], d: [["Hotelería", 182], ["Comedor", 120], ["Almacén", 71], ["RH", 39]] }
+      Semana: { t: "día", prev: "semana anterior", b: [["Lun", 42], ["Mar", 55], ["Mié", 48], ["Jue", 61], ["Vie", 58], ["Sáb", 30]], l: [12, 25, 37, 52, 66, 74], d: [["Hotelería", 46], ["Comedor", 28], ["Almacén", 16], ["RH", 10]], a: [97, 95, 92, 98], ks: ["+8%", "+5%"],
+        k: [["Cumplimiento", "96%", "+2 pts", 1], ["Tiempo de atención", "18 min", "−3 min", 1], ["Satisfacción", "4.6 de 5", "+0.2", 1], ["Incidencias", "3", "+1", 0]] },
+      Mes: { t: "semana", prev: "mes anterior", b: [["S1", 260], ["S2", 294], ["S3", 281], ["S4", 318]], l: [20, 44, 69, 92], d: [["Hotelería", 182], ["Comedor", 120], ["Almacén", 71], ["RH", 39]], a: [95, 94, 90, 97], ks: ["+12%", "+9%"],
+        k: [["Cumplimiento", "94%", "−1 pt", 0], ["Tiempo de atención", "21 min", "−2 min", 1], ["Satisfacción", "4.5 de 5", "+0.1", 1], ["Incidencias", "11", "−4", 1]] }
     };
+    const REG = [["SRV-1045", "RH", "Abierto", "warn"], ["SRV-1044", "Almacén", "Cerrado", "ok"], ["SRV-1043", "Comedor", "En proceso", "info"], ["SRV-1042", "Hotelería", "Cerrado", "ok"]];
+    const META = 95;
     return {
       state: () => ({ rango: "Semana", carga: false, v: 0 }),
       view: s => {
         const d = D[s.rango], j = (n, i) => s.v ? Math.round(n * (1 + ((i * 7 + s.v * 3) % 5 - 2) / 20)) : n; /* variación fija para simular datos nuevos */
         const b = d.b.map((x, i) => ({ l: x[0], v: j(x[1], i) })), l = d.b.map((x, i) => ({ l: x[0], v: d.l[i] })), dn = d.d.map((x, i) => ({ l: x[0], v: j(x[1], i + 1) }));
+        const sum = it => it.reduce((t, x) => t + x.v, 0);
+        const K = [["Servicios", fmt(sum(b)), d.ks[0], 1], ["Solicitudes", fmt(sum(dn)), d.ks[1], 1], ...d.k];
         return `<div class="panel"><div class="demo-top"><div class="mk-chips" role="group" aria-label="Periodo">${Object.keys(D).map(k => B("rango", k, k, "mk-chip", `aria-pressed="${s.rango === k}"`)).join("")}</div>${B("api", "", "Actualizar datos", "mk-btn sm" + (s.carga ? " busy" : ""))}</div>
+          <div class="kpis k6">${K.map(k => `<div class="fig"><span>${k[0]}</span><b>${k[1]}</b><small class="${k[3] ? "txt-ok" : "txt-bad"}">${k[3] ? "✓" : "!"} ${k[2]} <i>vs. ${d.prev}</i></small></div>`).join("")}</div>
           <div class="charts"><div class="chart"><h4>Servicios por ${d.t}<small>Gráfica de barras</small></h4>${bars(b, { label: "Servicios por " + d.t })}</div>
-          <div class="chart"><h4>Avance acumulado<small>Gráfica de línea · porcentaje</small></h4>${line(l, { unit: "%", label: "Avance acumulado" })}</div>
+          <div class="chart"><h4>Avance acumulado<small>Gráfica de línea · porcentaje de la meta</small></h4>${line(l, { unit: "%", label: "Avance acumulado" })}</div>
           <div class="chart"><h4>Solicitudes por área<small>Gráfica de dona</small></h4>${donut(dn, { label: "Solicitudes por área" })}</div></div>
+          <div class="charts two"><div class="chart"><h4>Cumplimiento por área<small>Meta: ${META}% o más</small></h4>${d.d.map((x, i) => hbar(`${x[0]} <span class="${d.a[i] >= META ? "txt-ok" : "txt-bad"}">${d.a[i] >= META ? "✓ cumple" : "✗ bajo meta"}</span>`, d.a[i], 100, "", "%")).join("")}</div>
+          <div class="chart"><h4>Últimos registros<small>Lo más reciente que entregó la API</small></h4><table class="tblx"><thead><tr><th>Folio</th><th>Área</th><th>Estado</th></tr></thead><tbody>${REG.map(r => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${pill(r[2], r[3])}</td></tr>`).join("")}</tbody></table></div></div>
           ${tabla([d.t[0].toUpperCase() + d.t.slice(1), "Servicios", "Avance"], b.map((x, i) => [x.l, fmt(x.v), l[i].v + "%"]))}
-          <p class="mk-note" aria-live="polite">${s.carga ? "Consultando la API…" : "Datos de ejemplo. En un tablero real llegan de una API (una conexión que entrega los datos de otro sistema)."}</p></div>`;
+          <p class="mk-note" aria-live="polite">${s.carga ? "Consultando la API…" : (s.v ? "Actualizado hace un momento. " : "") + "Datos de ejemplo. En un tablero real llegan de una API (una conexión que entrega los datos de otro sistema)."}</p></div>`;
       },
       on: (s, a, v, api) => {
         if (a === "rango") s.rango = v;
         else if (a === "api" && !s.carga) { s.carga = true; api.later(800, () => { s.carga = false; s.v++; }); }
       },
-      guia: s => s.carga ? { t: "Consultando la API…" } : s.v ? { t: "Listo: tres gráficas dibujadas con código, sin licencias de Power BI.", fin: 1 } : s.rango === "Semana" ? { t: "Cambia el periodo: las gráficas se redibujan.", sel: "[data-v='Mes']" } : { t: "Actualiza los datos, como si llegaran de una API.", sel: "[data-a=api]" }
+      guia: s => s.carga ? { t: "Consultando la API…" } : s.v ? { t: "Listo: indicadores, gráficas y registros en una página web, sin licencias de Power BI.", fin: 1 } : s.rango === "Semana" ? { t: "Arriba están los indicadores clave (KPIs) con su cambio contra el periodo anterior. Cambia el periodo a Mes.", sel: "[data-v='Mes']" } : { t: "Todo se recalculó. Ahora actualiza los datos, como si llegaran de una API.", sel: "[data-a=api]" }
     };
   })()
 };

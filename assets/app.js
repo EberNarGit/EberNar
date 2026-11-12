@@ -4,7 +4,7 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { ret
 const S = { q: "", area: "", herr: "" };
 const byId = Object.fromEntries(PROYECTOS.map(p => [p.id, p]));
 const HERR = [...new Set(PROYECTOS.flatMap(p => p.herramientas))];
-const NAV = [["inicio", "Inicio", "home"], ["proyectos", "Proyectos", "grid"], ["dashboards", "Dashboards", "chart"], ["soporte", "Soporte TI", "laptop"], ["web", "Web", "globe"], ["sobre-mi", "Sobre mí", "user"]];
+const NAV = [["inicio", "Inicio", "home"], ["proyectos", "Proyectos", "grid"], ["dashboards", "Dashboards", "chart"], ["soporte", "Soporte TI", "laptop"], ["sobre-mi", "Sobre mí", "user"]];
 const href = k => k === "inicio" ? "#/" : "#/" + k;
 
 // autocomprobación de datos: avisa en consola si un proyecto nuevo quedó mal definido
@@ -24,7 +24,7 @@ function route() {
 /* ── piezas ── */
 const chipsHerr = p => p.herramientas.map(h => `<span>${esc(h)}</span>`).join("");
 const chipsArea = p => p.areas.map(a => `<span class="area">${esc(a)}</span>`).join("");
-const card = (p, i) => `<a class="card appcard rv" href="#/proyecto/${p.id}" style="--i:${Math.min(i, 8)}"><div class="head"><span class="ico">${svg(p.icono)}</span><span><b>${esc(p.nombre)}</b><small>${esc(p.sub)}</small></span></div><p>${esc(p.resumen)}</p><div class="chips-s">${chipsArea(p)}${chipsHerr(p)}</div><div class="foot"><span>${p.cifras ? `<b>${esc(p.cifras[0][0])}</b> ${esc(p.cifras[0][1])}` : p.demo ? "Con demo interactiva" : "Propuesta conceptual"}</span><span class="dots-btn">${svg("arrow")}</span></div></a>`;
+const card = (p, i) => `<a class="card appcard rv" href="#/proyecto/${p.id}" style="--i:${Math.min(i, 8)}"><div class="head"><span class="ico">${svg(p.icono)}</span><span><b>${esc(p.nombre)}</b><small>${esc(p.sub)}</small></span></div><p>${esc(p.resumen)}</p><div class="chips-s">${chipsArea(p)}${chipsHerr(p)}</div><div class="foot"><span>${p.cifras ? `<b>${esc(p.cifras[0][0])}</b> ${esc(p.cifras[0][1])}` : "Con demo interactiva"}</span><span class="dots-btn">${svg("arrow")}</span></div></a>`;
 const filtro = (k, v, n) => `<button type="button" class="chip" data-f="${k}" data-v="${esc(v)}" aria-pressed="${S[k] === v}">${esc(v || "Todas")}<span class="n">${n}</span></button>`;
 const contacto = () => `<div class="btns"><a class="btn" href="mailto:${PERFIL.correo}">${svg("mail")}${PERFIL.correo}</a><a class="btn ghost" href="${PERFIL.wa}" target="_blank" rel="noopener">${svg("phone")}WhatsApp ${PERFIL.whatsapp}</a></div>`;
 
@@ -70,7 +70,6 @@ function detailHTML(p) {
     <section class="card pad t-res" id="d-cambio"><h2 class="label">${svg("check")}En qué ayudó</h2>${p.cifras ? `<div class="figs">${p.cifras.map(c => `<div class="fig"><b>${esc(c[0])}</b><span>${esc(c[1])}</span></div>`).join("")}</div>` : ""}<ul class="built">${p.cambio.map(c => `<li>${svg("check")}<span>${esc(c)}</span></li>`).join("")}</ul></section>
   </div>
   ${p.demo ? `<section class="card demo" id="d-demo" aria-labelledby="t-demo-${p.id}"><div class="demo-top"><div><span class="label">Cómo funciona · demo paso a paso</span><h3 id="t-demo-${p.id}">${esc(p.demoTitulo)}</h3></div><div class="demo-actions"><span class="badge b-warn">Datos de ejemplo</span><button type="button" class="chip" data-restart>${svg("redo")} Reiniciar</button></div></div><div class="demo-root" data-demo="${p.demo}" tabindex="-1"></div></section>` : ""}
-  ${p.enlace ? `<section class="card demo" id="d-demo"><div class="demo-top"><div><span class="label">Vista previa</span><h3>Propuesta conceptual, navegable</h3></div><a class="btn" href="${p.enlace.href}">${esc(p.enlace.texto)} ${svg("arrow")}</a></div><div class="browser"><div class="barra" aria-hidden="true"><i></i><i></i><i></i><span>${p.enlace.href}</span></div><iframe src="${p.enlace.href}" title="Vista previa: ${esc(p.nombre)}" loading="lazy"></iframe></div><p class="nota">Propuesta conceptual. No es el sitio oficial.</p></section>` : ""}
   <article class="card hero-app">
     ${sec("d-construi", "Qué construí", `<ul class="built">${p.construi.map(c => `<li>${svg("check")}<span>${esc(c)}</span></li>`).join("")}</ul>`)}
     ${sec("d-herr", "Herramientas", `<div class="chips-s">${chipsHerr(p)}</div>`)}
@@ -93,7 +92,7 @@ function head(r) {
   if (r.v === "inicio") return [(h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches") + ", soy", PERFIL.marca, PERFIL.puesto + ". " + PERFIL.frase];
   if (r.v === "proyectos") return ["Proyectos", "Antes manual, después digital", "Busca o filtra por área y por herramienta. Cada tarjeta abre su detalle con una demo."];
   if (r.v === "sobre-mi") return ["Contacto", "Sobre mí", PERFIL.puesto + "."];
-  if (r.v === "proyecto") return [r.p.areas.join(" · ") || "Web", r.p.nombre, r.p.sub];
+  if (r.v === "proyecto") return [r.p.areas.join(" · "), r.p.nombre, r.p.sub];
   return ["Sección", SECCIONES[r.v].titulo, SECCIONES[r.v].sub];
 }
 const sideBtns = l => l.map(([id, t]) => `<button type="button" data-scroll="${id}">${t}</button>`).join("");
